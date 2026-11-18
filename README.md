@@ -8,7 +8,7 @@
 docker compose up --build -d
 ```
 
-访问 http://localhost:18250 。初次启动自动运行脏样例，可切换 clean.csv 与 legacy.csv。顶部“运行批次”会重新计算，同源输入复用批次。
+访问 http://localhost:18250 。初次启动自动运行脏样例，可切换 clean.csv、legacy.csv、age.csv 与 age_hold.csv。顶部“运行批次”会重新计算，同源输入复用批次。
 
 ## 业务模块
 
@@ -23,6 +23,8 @@ docker compose up --build -d
 ## 核心规则
 
 按保全有效日拆分责任区间，撤销回滚指向原变更；实收补退按日精确分配尾差。完整数值、边界和异常定义见 `docs/DATA-DICTIONARY.md`。
+
+投保年龄更正默认**自下一次保单周年起适用**：已寄出的续期账单保持原样，不追溯改写；`age_mode=retroactive` 才自原承保日重算，且仅作对照。两种口径的期次与金额同时留存，补退页与结案下载逐期保留原账单和更正依据；同一更正重试不新增期次，任一更正失败时整批保留旧账单。
 
 ## 验证
 

@@ -34,6 +34,11 @@ def create_app():
     def download(run_id):
         state=store.get(run_id)
         if not state.get('reconcile',{}).get('balanced'):raise DomainError('UNBALANCED','对账未平')
+        if not state.get('archive',{}).get('ready'):raise DomainError('UNBALANCED','结案校验未通过')
+        needs_bills=bool(state.get('age_revisions')) or (state.get('age_policy') or {}).get('corrections',0)>0
+        if needs_bills and not state.get('original_bills'):
+            # 存在年龄更正时缺原账单就无法向客户解释每一期，禁止静默出包。
+            raise DomainError('BILLS_LOST','原账单留存缺失，禁止下载',409)
         return Response(bundle(state),mimetype='text/csv; charset=utf-8',headers={'Content-Disposition':'attachment; filename=evidence.csv'})
     with app.app_context():
         if not store.history():

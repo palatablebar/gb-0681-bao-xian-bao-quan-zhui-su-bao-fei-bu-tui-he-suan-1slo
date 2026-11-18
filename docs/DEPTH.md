@@ -31,6 +31,11 @@
 | TRAP-26 | 旧版本复核 | 覆盖新结论 | 事务条件更新 | `app/store.py` | `tests/test_archive.py::test_stale_review` |
 | TRAP-23 | 生效日端点 | 双计生效日 | 半开区间 | `app/modules/m4_segments/rules.py` | `tests/test_segments.py::test_halfopen_conservation` |
 | TRAP-24 | 分币尾差 | 段合计不等 | 最大余额法 | `app/modules/m5_calculate/rules.py` | `tests/test_calculate.py::test_largest_remainder_conserves` |
+| TRAP-31 | 年龄更正口径 | 直接全额追溯改写已寄出账单 | 默认周年起适用，追溯仅作对照 | `app/modules/m4_segments/age.py` | `tests/test_age_correction.py::test_default_is_prospective_from_next_anniversary` |
+| TRAP-32 | 跨费率档 | 只在原变更节点切段 | 落档周年强制切段 | `app/modules/m4_segments/age.py` | `tests/test_age_correction.py::test_rate_band_boundary_creates_periods` |
+| TRAP-33 | 更正重试 | 每提一次多一期 | 内容指纹去重与幂等批次 | `app/modules/m3_versions/age_rows.py` | `tests/test_age_correction.py::test_same_correction_retry_does_not_add_periods` |
+| TRAP-34 | 切换半途失败 | 部分保单已改、其余保留 | 整批 `HELD` 并保留旧账单 | `app/modules/m4_segments/rules.py` | `tests/test_age_correction.py::test_one_failed_switch_keeps_all_old_bills` |
+| TRAP-35 | 原账单被切开 | 已寄出期次被改写丢失 | 原账单整期留存，边界派生片段 | `app/modules/m5_calculate/rules.py` | `tests/test_age_correction.py::test_boundary_inside_issued_bill_keeps_original_intact` |
 
 ## 对账规则
 

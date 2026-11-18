@@ -1,10 +1,15 @@
 from collections import defaultdict
 from decimal import Decimal
 from app.errors import DomainError
+from app.modules.m3_versions.age_rows import AGE_KIND,collect
 
 def apply(state):
     groups=defaultdict(list);bad=[]
+    age_rows=[r for r in state['rows'] if r.get('kind')==AGE_KIND]
     for r in state['rows']:
+        if r.get('kind')==AGE_KIND:
+            # 年龄更正作为采信依据保留在 rows 中（行数对账仍完整），但不参与批单选版。
+            continue
         if r['kind'] not in ('issue','change','cancel') or r['start']>=r['end'] or not r['start']<=r['effective']<r['end'] or Decimal(str(r['annual_premium']))<0 or Decimal(str(r['paid']))<0:
             bad.append((r,'RANGE'));continue
         groups[r['policy_id']].append(r)
@@ -30,4 +35,5 @@ def apply(state):
     bad_lines={r['_line'] for r,_ in bad}
     for r,code in bad:state['quarantine'].append({'line':r['_line'],'id':r['id'],'code':code,'raw':r['_raw']})
     state['rows']=[r for r in state['rows'] if r['_line'] not in bad_lines]
-    state['policies']=policies;return state
+    state['policies']=policies
+    return collect(state,age_rows,policies)
